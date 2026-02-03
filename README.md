@@ -1,10 +1,10 @@
-# CreditBalanceFlipper
+# QFXCreditBalanceFlipper
 <html>
     <div style="display: flex; padding-bottom: 1rem;">
         <img src="images/logo.png" style="padding-right: 2rem;" alt="Balance Flipper Logo" width="128"/>
         <div>
             <p>
-                CreditBalanceFlipper flips the credit balance found in QFX files to be negative.
+                QFXCreditBalanceFlipper flips the credit balance found in QFX files to be negative.
                 This can be useful when trying to avoid financial apps such as Quicken misinterpreting the value.
             </p>
             <p>
@@ -22,7 +22,7 @@
     + [Flags](#flags)
 
 ## Download
-**Executable (Windows):** Get the latest release from the [releases tab](https://github.com/theCYBRIX/CreditBalanceFlipper/releases).  
+**Executable (Windows):** Get the latest release from the [releases tab](https://github.com/theCYBRIX/QFXCreditBalanceFlipper/releases).  
 **Python:** Download and use the [credit_balance_flipper.py](credit_balance_flipper.py) file. It works stand-alone.
 
 ## Drag & Drop
@@ -42,10 +42,10 @@ Otherwise, if any errors occur, the application will wait for user input, giving
 
 Example command line usage:
 ```cmd
-CreditBalanceFlipper.exe ".\\transactions.qfx" ".\\transactions(1).qfx" --pause
+QFXCreditBalanceFlipper.exe ".\\transactions.qfx" ".\\transactions(1).qfx" --pause
 ```
 
-The application will pause and wait for user input before exiting if any errors occur:
+If any errors occur, the application will also pause and wait for user input before exiting:
 
 ![CLI Usage](images/cli_usage.png)
 
