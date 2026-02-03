@@ -1,7 +1,7 @@
 # CreditBalanceFlipper
 <html>
     <div style="display: flex; padding-bottom: 1rem">
-        <img src="logo.png" style="padding-right: 2rem" alt="credit_balance_flipper_logo" width="128"/>
+        <img src="images/logo.png" style="padding-right: 2rem" alt="credit_balance_flipper_logo" width="128"/>
         <div>
             <p>
                 CreditBalanceFlipper flips the credit balance found in QFX files to be negative.
