@@ -18,7 +18,7 @@ Example command line usage:
 """
 
 import os
-import argparse
+from argparse import ArgumentParser, Namespace
 from colorama import Fore, Style
 
 
@@ -27,22 +27,22 @@ END_CATEGORY: str = "</LEDGERBAL>"
 PROPERTY_NAME: str = "<BALAMT>"
 
 
-def main():
+def main() -> None:
     """
-    Initializes the main logic of the program then waits for user input if required
+    Initializes the main logic of the program then waits for user input if required.
     """
-    args = parse_args()
-    success = process_files(args.files, args.undo)
+    args : Namespace = parse_args()
+    success : bool = process_files(args.files, args.undo)
     if args.pause or not success:
         input("Press Enter to continue...")
 
 
-def parse_args():
+def parse_args() -> Namespace:
     """
-    Uses argparse to parse command line arguments
+    Uses argparse to parse command line arguments.
     """
 
-    parser = argparse.ArgumentParser(
+    parser : ArgumentParser = ArgumentParser(
         description="Convert credit card balance in .qfx files to a negative value."
     )
 
@@ -69,17 +69,18 @@ def parse_args():
 
 
 def process_files(
-        file_paths : list[str], make_balance_negative : bool = True):
+        file_paths : list[str], make_balance_negative : bool = True) -> bool:
     """
     Validates file paths and types and updates the credit balance signage
     in files as specified by make_balance_negative.
     
     Parameters:
-        file_paths (list[str]): List of files in which to flip credit balance value
-        make_balance_negative: Weather to make credit balance negative (default) or positive
+        file_paths (list[str]): List of files in which to flip credit balance value.
+        make_balance_negative (bool): Weather to make credit balance negative (default)
+                                      or positive.
     
     Returns:
-        success (bool): Weather all files could be updated/validated successfully
+        success (bool): Weather all files could be updated/validated successfully.
     """
 
     if not file_paths:
@@ -146,17 +147,18 @@ def process_files(
     return False
 
 
-def correct_balance(file_contents : list[str], make_negative : bool = True):
+def correct_balance(file_contents : list[str], make_negative : bool = True) -> tuple[bool, bool]:
     """
     Finds and corrects the credit balance value if needed. 
     
     Parameters:
-        file_contents (list[str]): File contents in which to correct the credit balance signage
-        make_negative (bool): Weather to make the credit balance negative (default) or positive
+        file_contents (list[str]): File contents in which to correct the credit balance signage.
+        make_negative (bool): Weather to make the credit balance negative (default) or positive.
 
-    returns:
-        value_found (bool): Weather the credit balance could be found
-        value_corrected (bool): Weather the credit balance needed to be corrected
+    Returns:
+        results (tuple[bool, bool]):
+            [0] value_found: Weather the credit balance could be found. \n
+            [1] value_corrected: Weather the credit balance needed to be corrected.
     """
 
     inside_category: bool = False
