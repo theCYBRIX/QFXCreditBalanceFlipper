@@ -1,7 +1,7 @@
 # CreditBalanceFlipper
 <html>
-    <div style="display: flex; padding-bottom: 1rem">
-        <img src="images/logo.png" style="padding-right: 2rem" alt="credit_balance_flipper_logo" width="128"/>
+    <div style="display: flex; padding-bottom: 1rem;">
+        <img src="images/logo.png" style="padding-right: 2rem;" alt="Balance Flipper Logo" width="128"/>
         <div>
             <p>
                 CreditBalanceFlipper flips the credit balance found in QFX files to be negative.
@@ -15,11 +15,15 @@
     </div>
 </html>
 
-## Usage
+## Usage Guides
 - [Drag & Drop](#drag--drop)
 - [Command line (CLI)](#cli-usage)
     + [Command Line Arguments](#command-line-arguments)
     + [Flags](#flags)
+
+## Download
+**Executable (Windows):** Get the latest release from the [releases tab](https://github.com/theCYBRIX/CreditBalanceFlipper/releases).  
+**Python:** Download and use the [credit_balance_flipper.py](credit_balance_flipper.py) file. It works stand-alone.
 
 ## Drag & Drop
 
