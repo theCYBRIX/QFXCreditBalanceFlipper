@@ -1,7 +1,7 @@
 # QFXCreditBalanceFlipper
 <html>
     <div style="display: flex; padding-bottom: 1rem;">
-        <img src="images/logo.png" style="padding-right: 2rem;" alt="Balance Flipper Logo" width="128"/>
+        <img src="images/logo.png" style="padding-right: 2rem;" alt="Balance Flipper Logo" width="128" height="128"/>
         <div>
             <p>
                 CreditBalanceFlipper flips the credit balance found in QFX files to be negative.
@@ -28,7 +28,8 @@
 ## Drag & Drop
 
 Dragging files onto the executable (or a shortcut to the executable) is the most straight-forward way of using it.  
-***The application will update/overwrite the existing files in place.*** If you want to keep a backup of the original, be sure to make a copy on which to make the changes.
+***The application will update/overwrite the existing files in place.*** If you want to keep a backup of the original,
+be sure to make a copy on which to make the changes.
 
 If all files could be processed without error, the application will close automatically when finished:
 
@@ -49,11 +50,11 @@ If any errors occur, the application will pause and wait for user input before e
 
 ![CLI Usage](images/cli_usage.png)
 
-### Arguments:
+### Arguments
 ```text
     file_path... (str): The path/s to the .qfx file/s to process.
 ```
-### Flags:
+### Flags
 ```text
     -p, --pause     Wait for user input before exiting
     -u, --undo      Make credit balance positive in the specified files
