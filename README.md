@@ -15,11 +15,14 @@
     </div>
 </html>
 
+## Note
+This script should work properly with most QFX files. ***It does not, however, have a fully featured parser.*** Implicitly closed containers and simple elements containing empty strings may not be interpreted correctly.
+
 ## Usage Guides
 - [Drag & Drop](#drag--drop)
 - [Command line (CLI)](#cli-usage)
-    + [Arguments](#arguments)
-    + [Flags](#flags)
+    + [Positional Arguments](#positional-arguments)
+    + [Options / Flags](#options--flags)
 
 ## Download
 **Executable (Windows):** Get the latest release from the [releases tab](https://github.com/theCYBRIX/QFXCreditBalanceFlipper/releases).  
@@ -50,13 +53,13 @@ If any errors occur, the application will pause and wait for user input before e
 
 ![CLI Usage](images/cli_usage.png)
 
-### Arguments
+### Positional Arguments
 ```text
     file_path... (str): The path/s to the .qfx file/s to process.
 ```
-### Flags
+### Options / Flags
 ```text
-    -p, --pause     Wait for user input before exiting
-    -u, --undo      Make credit balance positive in the specified files
-    -h, --help      Show help message and exit without processing files
+    -p, --pause, --no-pause     Wait for user input before exiting
+    -u, --undo                  Make credit balance positive in the specified files
+    -h, --help                  Show help message and exit without processing files
 ```

@@ -19,7 +19,7 @@ Example command line usage:
 
 import os
 from enum import Enum
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser, Namespace, BooleanOptionalAction
 from colorama import Fore, Style
 
 
@@ -44,9 +44,10 @@ def main() -> None:
     """
     Initializes the main logic of the program then waits for user input if required.
     """
+
     args : Namespace = parse_args()
     success : bool = process_files(args.files, args.undo)
-    if args.pause or not success:
+    if args.pause or (args.pause is None and not success):
         input("Press Enter to continue...")
 
 
@@ -56,7 +57,7 @@ def parse_args() -> Namespace:
     """
 
     parser : ArgumentParser = ArgumentParser(
-        description="Convert credit card balance in .qfx files to a negative value."
+        description="Converts credit card balance in .qfx files to a negative value."
     )
 
     parser.add_argument(
@@ -68,7 +69,8 @@ def parse_args() -> Namespace:
 
     parser.add_argument(
         "-p", "--pause",
-        action="store_true",
+        action=BooleanOptionalAction,
+        default=None,
         help="Wait for user input before exiting"
     )
 
@@ -125,16 +127,23 @@ def process_files(
 
             success_count += 1
 
-            print(f"{Fore.GREEN}[OK]{Style.RESET_ALL} " +
-                (
-                    "Flipped value"
-                    if value_updated else
-                    f"Balance already {"negative" if make_balance_negative else "positive"}"
-                )
-                + f" in: \"{os.path.basename(path)}\""
-            )
+            success_msg : str = f"{Fore.GREEN}[OK]{Style.RESET_ALL} "
+            if value_updated:
+                success_msg += "Flipped value"
+            else:
+                success_msg += ("Balance already " +
+                           ("negative" if make_balance_negative else "positive"))
+            success_msg += f" in: \"{os.path.basename(path)}\""
+            print(success_msg)
+
         except (SyntaxError, ValueError) as e:
-            print(f"{Fore.RED}[ERROR]{Style.RESET_ALL} " + "\n\t".join(e.args))
+            error_line_marker : str = f"\n{Fore.LIGHTRED_EX}      | {Style.RESET_ALL}"
+            print(f"{Fore.LIGHTRED_EX}[ERROR]{Style.RESET_ALL} " +
+                    f"Unable to parse file: \"{os.path.basename(path)}\"" +
+                    error_line_marker +
+                    error_line_marker.join(
+                        arg.replace("\n", error_line_marker) for arg in e.args
+                    ))
 
 
     if success_count == len(file_paths):
@@ -174,8 +183,8 @@ def validate_files(file_paths : list[str]) -> None:
         elif not path.endswith(".qfx"):
             error_msg = "File does not appear to be in qfx format"
         elif os.path.getsize(path) > MAX_FILE_SIZE:
-            error_msg = f"File is too large to process safely \
-                ({os.path.getsize(path) * BYTES_PER_MEBIBYTE} Mebibyes)"
+            error_msg = "File is too large to process safely " + \
+                f"({os.path.getsize(path) * BYTES_PER_MEBIBYTE} Mebibyes)"
         else:
             continue
 
@@ -205,8 +214,8 @@ def update_qfx_contents(file_contents : str, make_negative : bool = True) -> tup
     state : ParserState = ParserState.VALUE
 
     current_tag = ""
+    current_tag_is_leaf : bool = False
     category_stack : list[str] = []
-    inside_category : bool = False
 
     output : list[str] = []
     buffer : list[str] = []
@@ -217,9 +226,14 @@ def update_qfx_contents(file_contents : str, make_negative : bool = True) -> tup
     num_chars : int = len(file_contents)
     i : int = 0
 
+    line_number : int = 1
+
     while i < num_chars:
         char : str = file_contents[i]
         i += 1
+
+        if char == "\n":
+            line_number += 1
 
         if state == ParserState.TAG:
             buffer.append(char)
@@ -238,21 +252,29 @@ def update_qfx_contents(file_contents : str, make_negative : bool = True) -> tup
                     current_tag = category_stack.pop()
 
                 elif closed_category in category_stack:
-                    last_index : int = len(category_stack) - 1 \
+                    closed_tag_index : int = len(category_stack) - 1 \
                             - category_stack[::-1].index(closed_category)
-                    category_stack = category_stack[0:last_index]
+                    new_tag_index : int = closed_tag_index - 1
+                    if new_tag_index > 0:
+                        current_tag = category_stack[new_tag_index]
+                        category_stack = category_stack[0:new_tag_index]
+                    else:
+                        current_tag = ""
+                        category_stack.clear()
 
                 else:
-                    for index, category in enumerate(category_stack):
-                        category_stack[index] = f"\"{category[1:-1]}\""
                     raise SyntaxError(
-                        f"Malformatted QFX file. Found \"{tag}\" \
-                            while in category: {" > ".join(category_stack)}"
+                        f"Unexpected closing tag \"{tag}\" inside " +
+                        f"\"{category_stack[-1]}\". (line {line_number})\n" +
+                        "Category Stack Trace:\n\t" +
+                        " > ".join(category[1:-1] for category in category_stack)
                     )
             else:
-                category_stack.append(current_tag)
-                inside_category = current_tag == TARGET_CATEGORY
+                if not current_tag_is_leaf:
+                    category_stack.append(current_tag)
+
                 current_tag = tag.upper()
+                current_tag_is_leaf = False
                 state = ParserState.VALUE
 
         elif state == ParserState.VALUE:
@@ -260,7 +282,7 @@ def update_qfx_contents(file_contents : str, make_negative : bool = True) -> tup
                 value_string : str = "".join(buffer)
                 buffer.clear()
 
-                if inside_category and current_tag == TARGET_PROPERTY:
+                if current_tag == TARGET_PROPERTY and category_stack[-1] == TARGET_CATEGORY:
                     value_found_count += 1
 
                     try:
@@ -268,10 +290,17 @@ def update_qfx_contents(file_contents : str, make_negative : bool = True) -> tup
                         if value_flipped:
                             value_flipped_count += 1
                     except ValueError as e:
-                        raise SyntaxError(
-                            f"Found value but failed flip it. \
-                            ({TARGET_CATEGORY[1:-1]} > {TARGET_PROPERTY[1:-1]} > {value_string})"
+                        raise ValueError(
+                            f"Found invalid {TARGET_PROPERTY[1:-1]} value: " + 
+                            f"\"{value_string.strip()}\" (line {line_number})\n" +
+                            "Category Stack Trace:\n\t " +
+                            " > ".join(category[1:-1] for category in category_stack) + 
+                            f" > {TARGET_PROPERTY[1:-1]}"
                         ) from e
+
+                if len(value_string) > 0 and not value_string.isspace():
+                    current_tag_is_leaf = True
+
 
                 output.append(value_string)
                 state = ParserState.TAG
